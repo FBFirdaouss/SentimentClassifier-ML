@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Classifier</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="container">
+        <h1>Sentiment Classifier</h1>
+        <p>Analyze the sentiment of your customer reviews.</p>
+
+        <textarea id="review" placeholder="Enter your customer review here..."></textarea>
+
+        <label for="modelSelect">Choose an algorithm:</label>
+        <select id="modelSelect">
+            <option value="SVM">SVM</option>
+            <option value="Random Forest">Random Forest</option>
+            <option value="Naive Bayes">Naive Bayes</option>
+        </select>
+
+        <button id="analyzeBtn">Analyze Sentiment</button>
+
+        <div class="examples">
+            <p>Try an example:</p>
+            <button class="example-btn" data-text="This product is amazing! I absolutely love it.">
+                Positive
+            </button>
+            <button class="example-btn" data-text="This product is terrible. I regret buying it.">
+                Negative
+            </button>
+            <button class="example-btn" data-text="The package arrived yesterday afternoon.">
+                Neutral
+            </button>
+        </div>
+
+        <div id="result"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
