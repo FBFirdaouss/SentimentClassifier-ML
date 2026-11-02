@@ -9,9 +9,12 @@ CORS(app)
 
 # Charger les trois modèles et TF-IDF
 saved = joblib.load("sentiment_models.joblib")
-
 models = saved["models"]
 vectorizer = saved["vectorizer"]
+
+# saved = joblib.load("best_sentiment_model.joblib")
+# model = saved["model"]
+# vectorizer = saved["vectorizer"]
 
 def clean_text(text):
     text = str(text).lower()
@@ -24,6 +27,7 @@ def home():
     return jsonify({
         "message": "Sentiment Classifier API is running",
         "available_models": list(models.keys())
+        # "available_models": ["SVM"]
     })
 
 
@@ -41,11 +45,12 @@ def predict():
 
     model_name = data.get("model", "SVM")
 
+
     if model_name not in models:
         return jsonify({
-            "error": "Unknown model",
-            "available_models": list(models.keys())
-        }), 400
+        "error": "Unknown model",
+        "available_models": list(models.keys())
+    }), 400
 
     cleaned_text = clean_text(text)
     text_vector = vectorizer.transform([cleaned_text])
@@ -53,11 +58,20 @@ def predict():
     selected_model = models[model_name]
     prediction = selected_model.predict(text_vector)[0]
 
+    # cleaned_text = clean_text(text)
+    # text_vector = vectorizer.transform([cleaned_text])
+    # prediction = model.predict(text_vector)[0]
+    
     return jsonify({
-        "text": text,
-        "model": model_name,
-        "sentiment": prediction
-    })
+         "text": text,
+         "model": model_name,
+         "sentiment": prediction
+     })
+#     return jsonify({
+#     "text": text,
+#     "model": "SVM",
+#     "sentiment": prediction
+# })
 
 
 if __name__ == "__main__":
