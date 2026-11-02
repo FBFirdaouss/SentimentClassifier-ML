@@ -1,35 +1,24 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import re
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend")
 CORS(app)
 
-# Charger les trois modèles et TF-IDF
-saved = joblib.load("sentiment_models.joblib")
-models = saved["models"]
+saved = joblib.load("best_sentiment_model.joblib")
+model = saved["model"]
 vectorizer = saved["vectorizer"]
-
-# saved = joblib.load("best_sentiment_model.joblib")
-# model = saved["model"]
-# vectorizer = saved["vectorizer"]
 
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({
-        "message": "Sentiment Classifier API is running",
-        "available_models": list(models.keys())
-        # "available_models": ["SVM"]
-    })
-
+    return app.send_static_file("index.html")
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -43,36 +32,15 @@ def predict():
     if not isinstance(text, str) or not text.strip():
         return jsonify({"error": "Text must not be empty"}), 400
 
-    model_name = data.get("model", "SVM")
-
-
-    if model_name not in models:
-        return jsonify({
-        "error": "Unknown model",
-        "available_models": list(models.keys())
-    }), 400
-
     cleaned_text = clean_text(text)
     text_vector = vectorizer.transform([cleaned_text])
+    prediction = model.predict(text_vector)[0]
 
-    selected_model = models[model_name]
-    prediction = selected_model.predict(text_vector)[0]
-
-    # cleaned_text = clean_text(text)
-    # text_vector = vectorizer.transform([cleaned_text])
-    # prediction = model.predict(text_vector)[0]
-    
     return jsonify({
-         "text": text,
-         "model": model_name,
-         "sentiment": prediction
-     })
-#     return jsonify({
-#     "text": text,
-#     "model": "SVM",
-#     "sentiment": prediction
-# })
-
+        "text": text,
+        "model": "SVM",
+        "sentiment": prediction
+    })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
