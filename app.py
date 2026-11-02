@@ -7,8 +7,8 @@ import os
 app = Flask(__name__, static_folder="frontend")
 CORS(app)
 
-saved = joblib.load("best_sentiment_model.joblib")
-model = saved["model"]
+saved = joblib.load("sentiment_models.joblib")
+models = saved["models"]
 vectorizer = saved["vectorizer"]
 
 def clean_text(text):
@@ -28,17 +28,22 @@ def predict():
         return jsonify({"error": "Please provide a text"}), 400
 
     text = data["text"]
+    model_name = data.get("model", "SVM")
 
     if not isinstance(text, str) or not text.strip():
         return jsonify({"error": "Text must not be empty"}), 400
 
+    if model_name not in models:
+        return jsonify({"error": f"Model {model_name} not found"}), 400
+
     cleaned_text = clean_text(text)
     text_vector = vectorizer.transform([cleaned_text])
+    model = models[model_name]
     prediction = model.predict(text_vector)[0]
 
     return jsonify({
         "text": text,
-        "model": "SVM",
+        "model": model_name,
         "sentiment": prediction
     })
 

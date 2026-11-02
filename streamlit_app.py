@@ -11,8 +11,8 @@ st.set_page_config(
 
 @st.cache_resource
 def load_models():
-    saved = joblib.load("sentiment_models.joblib")
-    return saved["models"], saved["vectorizer"]
+    saved = joblib.load("best_sentiment_model.joblib")
+    return saved["model"], saved["vectorizer"]
 
 def clean_text(text):
     text = str(text).lower()
@@ -23,12 +23,7 @@ st.title("💬 Sentiment Classifier")
 st.write("Analyze the sentiment of your customer reviews.")
 
 try:
-    models, vectorizer = load_models()
-
-    model_name = st.selectbox(
-        "Choose an algorithm:",
-        ["SVM", "Random Forest", "Naive Bayes"]
-    )
+    model, vectorizer = load_models()
 
     review = st.text_area(
         "Enter your customer review:",
@@ -42,7 +37,7 @@ try:
             cleaned_text = clean_text(review)
             text_vector = vectorizer.transform([cleaned_text])
 
-            prediction = models[model_name].predict(text_vector)[0]
+            prediction = model.predict(text_vector)[0]
 
             st.subheader("Prediction")
 
@@ -53,7 +48,7 @@ try:
             else:
                 st.info(f"Neutral 😐")
 
-            st.write(f"**Algorithm:** {model_name}")
+            st.write("**Algorithm:** SVM")
 
 except Exception as e:
     st.error(f"Error loading the models: {e}")
