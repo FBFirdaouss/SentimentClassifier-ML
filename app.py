@@ -20,6 +20,11 @@ def clean_text(text):
 def home():
     return app.send_static_file("index.html")
 
+@app.route("/frontend/<path:filename>")
+def frontend_files(filename):
+    return app.send_static_file(filename)
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
